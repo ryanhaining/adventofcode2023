@@ -6,7 +6,7 @@ private fun isWin(chargeTime: Long, totalTime: Long, recordDistance: Long): Bool
   return distance > recordDistance
 }
 
-private fun binSearch(totalTime: Long, recordDistance: Long): Long {
+fun binSearch(totalTime: Long, recordDistance: Long): Long {
   var minCharge = 0L
   var maxCharge = totalTime/2 + 1
   while (true) {
