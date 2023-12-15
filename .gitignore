@@ -2,4 +2,5 @@ a.out
 *.class
 *.o
 *input.txt
+failed*
 META-INF
