@@ -3,10 +3,19 @@
 #include <format>
 #include <iostream>
 #include <iterator>
+#include <map>
+#include <set>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
 namespace {
+
+struct Node {
+  int parent_count{};
+  std::vector<int> children{};
+};
+
 struct Coords {
   std::pair<int, int> xs{};
   std::pair<int, int> ys{};
@@ -43,21 +52,21 @@ struct Level {
   std::vector<Brick> bricks;
 };
 
-bool overlap_impl(const std::pair<int, int>& p1,
-                  const std::pair<int, int>& p2) {
+bool is_overlap_impl(const std::pair<int, int>& p1,
+                     const std::pair<int, int>& p2) {
   return (p1.first <= p2.first && p2.first <= p1.second) ||
          (p1.first <= p2.second && p2.second <= p1.second);
 }
 
-bool overlap(const std::pair<int, int>& p1, const std::pair<int, int>& p2) {
-  return overlap_impl(p1, p2) || overlap_impl(p2, p1);
+bool is_overlap(const std::pair<int, int>& p1, const std::pair<int, int>& p2) {
+  return is_overlap_impl(p1, p2) || is_overlap_impl(p2, p1);
 }
 
 std::unordered_set<int> check_collisions(const std::vector<Brick>& v,
                                          const Coords& coords) {
   std::unordered_set<int> collisions;
   for (const auto& brick : v) {
-    if (overlap(brick.xs, coords.xs) && overlap(brick.ys, coords.ys)) {
+    if (is_overlap(brick.xs, coords.xs) && is_overlap(brick.ys, coords.ys)) {
       collisions.insert(brick.id);
     }
   }
@@ -74,9 +83,7 @@ int main() {
       all_coords.begin(), all_coords.end(),
       [](const auto& c1, const auto& c2) { return c1.zs.first < c2.zs.first; });
 
-  std::vector<std::vector<bool>> rests_on(all_coords.size(),
-                                          std::vector<bool>(all_coords.size()));
-
+  std::vector<Node> rests_on(all_coords.size());
   std::vector<Level> levels(1);
 
   int brick_id_tracker = 0;
@@ -90,7 +97,8 @@ int main() {
       if (!collisions.empty()) {
         for (auto collision_bid : collisions) {
           assert(brick_id != collision_bid);
-          rests_on[brick_id][collision_bid] = true;
+          ++rests_on[brick_id].parent_count;
+          rests_on[collision_bid].children.push_back(brick_id);
         }
         break;
       }
@@ -105,12 +113,15 @@ int main() {
       insert_level.bricks.push_back({brick_id, coord.xs, coord.ys});
     }
   }
-  std::vector<bool> can_remove(all_coords.size(), true);
-  for (const auto& row : rests_on) {
-    if (std::count(row.begin(), row.end(), true) == 1) {
-      auto supporter = std::find(row.begin(), row.end(), true) - row.begin();
-      can_remove[supporter] = false;
+
+  std::size_t can_remove{};
+  for (const auto& brick : rests_on) {
+    if (std::all_of(brick.children.begin(), brick.children.end(),
+                    [&rests_on](int child_id) {
+                      return rests_on[child_id].parent_count > 1;
+                    })) {
+      ++can_remove;
     }
   }
-  std::cout << std::count(can_remove.begin(), can_remove.end(), true) << '\n';
+  std::cout << can_remove << '\n';
 }
