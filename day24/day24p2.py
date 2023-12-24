@@ -1,35 +1,23 @@
 import itertools
 import sys
 from dataclasses import dataclass
+from typing import Sequence
 
 import z3  # type: ignore
 
 
 @dataclass
-class Vec:
-    dx: int
-    dy: int
-    dz: int
-
-
-@dataclass
-class Point:
-    x: int
-    y: int
-    z: int
-
-
-@dataclass
 class HailStone:
-    position: Point
-    velocity: Vec
+    positions: Sequence[int]
+    velocities: Sequence[int]
 
 
 def line_to_hailstone(line: str) -> HailStone:
-    pts, vecs = line.split(" @ ")
-    x, y, z = [int(i) for i in pts.split(", ")]
-    dx, dy, dz = [int(i) for i in vecs.split(", ")]
-    return HailStone(Point(x, y, z), Vec(dx, dy, dz))
+    pts, vecs = line.split(' @ ')
+    return HailStone(
+        positions=[int(i) for i in pts.split(', ')],
+        velocities=[int(i) for i in vecs.split(', ')],
+    )
 
 
 def main():
@@ -38,31 +26,26 @@ def main():
         line_to_hailstone(line.rstrip()) for line in itertools.islice(sys.stdin, 3)
     ]
 
-    t1 = z3.Int("t1")
-    t2 = z3.Int("t2")
-    t3 = z3.Int("t3")
+    time_vars = [z3.Int(f't{i+1}') for i in range(3)]
+    pos_vars = [z3.Int(f'{c}0') for c in 'xyz']
+    vel_vars = [z3.Int(f'd{c}0') for c in 'xyz']
 
-    x0 = z3.Int("x0")
-    y0 = z3.Int("y0")
-    z0 = z3.Int("z0")
-
-    dx = z3.Int("dx")
-    dy = z3.Int("dy")
-    dz = z3.Int("dz")
+    assert len(time_vars) == len(hailstones)
+    assert len(pos_vars) == len(vel_vars)
+    for hs in hailstones:
+        assert len(pos_vars) == len(hailstones[0].positions)
+        assert len(vel_vars) == len(hailstones[0].velocities)
 
     solver = z3.Solver()
-    for hs, t in zip(hailstones, [t1, t2, t3]):
-        solver.add(
-            [
-                hs.position.x + t * hs.velocity.dx == x0 + t * dx,
-                hs.position.y + t * hs.velocity.dy == y0 + t * dy,
-                hs.position.z + t * hs.velocity.dz == z0 + t * dz,
-            ]
-        )
+    for hs, t in zip(hailstones, time_vars):
+        for hs_pos, hs_vel, pos, vel in zip(
+            hs.positions, hs.velocities, pos_vars, vel_vars
+        ):
+            solver.add(hs_pos + t * hs_vel == pos + t * vel)
     solver.check()
     m = solver.model()
-    print(sum(m.evaluate(n).as_long() for n in [x0, y0, z0]))
+    print(sum(m.evaluate(n).as_long() for n in pos_vars))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
