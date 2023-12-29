@@ -13,7 +13,7 @@ Everything reads from stdin and writes just the solution to stdout. I have alias
 File names are `Day` then the number then `P` then the part number, so day 14 part 2 is `Day14P2.kt`
 
 ```
-kotlinc DayNNPM.kt && koltin DayNNPMKt < input
+kotlinc Day14P2.kt && koltin Day14P2Kt < input
 ```
 
 ### C++
@@ -21,13 +21,13 @@ kotlinc DayNNPM.kt && koltin DayNNPMKt < input
 File names are `day` then the number then `p` then the part number, so day 23 part 2 is `day23p2.cpp`
 
 ```
-g++ -fsanitize=undefined,address -g -Wall -Wextra -pedantic-errors -std=c++23 daynnpm.cpp && ./a.out < input
+g++ -fsanitize=undefined,address -g -Wall -Wextra -pedantic-errors -std=c++23 day23p2.cpp && ./a.out < input
 ```
 
 or for speed
 
 ```
-g++ -O2 -Wall -Wextra -pedantic-errors -std=c++23 daynnpm.cpp && ./a.out < input
+g++ -O2 -Wall -Wextra -pedantic-errors -std=c++23 day23p2.cpp && ./a.out < input
 ```
 
 ### Python
