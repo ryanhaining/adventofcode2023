@@ -1,6 +1,7 @@
 a.out
 *.class
 *.o
+*.hi
 *input.txt
 failed*
 META-INF
