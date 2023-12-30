@@ -2,7 +2,7 @@
 
 https://adventofcode.com/2023
 
-I did this mostly in Kotlin for the sake of getting more in-depth experience. I used Python a couple of times, and C++ if I needed (or wanted) to optimize aggressively (day 23). 
+I did this mostly in Kotlin for the sake of getting more in-depth experience. I used Python a couple of times, and C++ if I needed (or wanted) to optimize aggressively (day 23). After finishing, I went back and redid some in Haskell.
 
 I split the part 2 into a separate file on almost all of them.
 
@@ -36,4 +36,11 @@ File names are `day` then the number then `p` then the part number, so day 4 par
 
 ```
 python3 day04p2.py < input
+```
+
+### Haskell
+
+File names are `day` then the number then `p` then the part number, so day 1 part 2 is `day01p2.hs`
+```
+ghc day01p2.hs && ./day01p2 < input
 ```
